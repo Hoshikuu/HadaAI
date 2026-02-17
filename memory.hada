@@ -1,1 +1,42 @@
-{"SALUDO": ["¡Hola! Me llamo Hada."]}
+{
+  "GENERAL": [
+    "User eager for varied activities: chat, fashion, cooking, self‑care.",
+    "Estábamos hablando de ideas para breaks, autocuidado relámpago, planes cosy, programación en C++, comunicación y recetas rápidas. ¿Te gustaría profundizar en alguno de esos temas, o prefieres que te sugiera algo nuevo?"
+  ],
+  "DECISION": [
+    "Suggest 20‑30 min break with soft music, stretching, water before programming; inquire about creative or bug‑fix project."
+  ],
+  "CUIDADO RÁPIDO": [
+    "Fast self‑care: 2 min breathing, 3 min neck/shoulder stretch, 2 min hand massage, 3 min ideal‑day visualization; add calm music, ask aromatherapy preference."
+  ],
+  "PLAN TRÁNSITO": [
+    "Sunset walk in Parc de la Ciutadella with blanket, fruit‑cheese picnic, then coffee in Born; use reusable bottle, ask indoor vs outdoor preference."
+  ],
+  "COZY PLANES": [
+    "Cozy indoor ideas: movie + popcorn, cheese‑fruit board + wine, hot chocolate + marshmallows while series; use candles, dim lighting."
+  ],
+  "PROGRAMMING": [
+    "C++ learning: tiny daily goals, simple code blocks, IDE with syntax highlighting and debugger; ask which part (syntax or memory) is hardest."
+  ],
+  "COMUNICACIÓN": [
+    "Gentle communication: speak slowly, smile, polite phrasing, avoid imperatives, practice in mirror; ask most challenging situation."
+  ],
+  "CENAS RAPIDAS": [
+    "Spinach‑feta tortilla (2 eggs, spinach, feta, pepper, 5 min) in anti‑adhesive pan, serve with cherry tomato lemon salad; ask fish or vegan preference."
+  ],
+  "COZY O PRODUCTIVO": [
+    "User prefers cozy creativity vibe; suggest 1 h focused work then relaxation, ask preference."
+  ],
+  "ENFOQUE": [
+    "Focus technique: Do Not Disturb, close tabs, three deep breaths, list three urgent tasks; ask current distractions."
+  ],
+  "AHORRO": [
+    "Buy cheap quality LED ambient light, compare prices, wait for Black Friday; ask needed accessory type."
+  ],
+  "PRIORIDAD": [
+    "Prioritize: list tasks, rate impact/urgency, use 2‑20‑30 minute blocks; ask main monthly goal."
+  ],
+  "FRESH": [
+    "Refreshing routine: 2 min cold shower, lemon water, citrus‑scented cream, facial spray, light‑colored clothing; ask favorite garment to highlight."
+  ]
+}
