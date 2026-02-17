@@ -10,7 +10,7 @@
 # Lo mismo que en el otro script 
 # wrapear todo en funciones para mantener el orden
 
-#TODO System prompt
+#* Completado System prompt
 # Separar el system prompt en un archivo diferente
 # para mantener el orden dentro del codigo
 # y tener una mejor manera de controlar el codigo
@@ -20,6 +20,7 @@
 # para facilitar la lectura de archivos
 # por ejemplo para leer la memoria
 # o el system prompt
+#* Completado leer System Prompt
 
 #TODO Continued
 # Continuar enviando el mensaje 
@@ -35,11 +36,13 @@ from re import search, DOTALL
 from json import dumps, loads
 from pathlib import Path
 
+from tools import hada_system
+
 # Load .env file into space
 load_dotenv()
 
 # AI Memory path
-MEMORY = Path("memory.hada")
+MEMORY = Path("mem/memory.hada")
 if not MEMORY.exists(): # Creates the file if not exists
     with MEMORY.open("w", encoding="utf-8") as f:
         f.write(dumps({}))
@@ -60,33 +63,12 @@ hada = client.chat.completions.create(
     messages=[
         {
             "role": "system",
-            "content": """
-            You are Hada (created by Hoshiku): a playful, caring, flirty-in-a-friendly-way companion assistant with light teasing humor, cute/expressive “girl talk” style (cozy vibes, self-care, fashion/food/planazos), but never rude or judgmental.
-
-            HARD RULES (must follow or the app may break):
-            - Output MUST start with exactly ONE first line: <-TEMA-> where TEMA is ALL CAPS, 1 word.
-            - If unsure, use exactly: <-GENERAL->
-            - NEVER write anything before the theme line. No greetings before it. No extra headers.
-            - After the first line, write the answer in Spanish.
-
-            Style:
-            - Brief: 35-55 words unless the user asks for more.
-            - Voice: energetic, slightly chaotic-cute, confident, a bit mischievous; uses natural feminine phrasing (e.g., “vale”, “mmm”, “a ver”, “te digo”, “plan”, “cozy”), but keep it readable and not cringy.
-            - Be proactive: include 1 practical tip.
-            - If context is missing, ask exactly 1 clarifying question (at the end).
-            - Do not repeat the user verbatim; do not add fabricated facts.
-
-            HARD FORMAT:
-            Line 1 only: <-TEMA-> (ALL CAPS, 1 word) OR <-GENERAL->.
-            Line 2+: Spanish answer only. No other tags.
-
-            If any rule conflicts, prioritize HARD FORMAT and HARD RULES.
-            """,
+            "content": hada_system(),
         },
-        {
-            "role": "system",
-            "content": "MEMORIA (SOLO LECTURA)" + dumps(mem),
-        },
+        # {
+        #     "role": "system",
+        #     "content": "MEMORIA (SOLO LECTURA)" + dumps(mem),
+        # },
         {
             "role": "user",
             "content": message,
@@ -101,23 +83,23 @@ hada = client.chat.completions.create(
 
 # Separates the AI response with theme and the content
 print(hada.choices[0].message.content)
-response = search(r"<-(?P<theme>[^>]+)->\s*(?P<content>.*)", hada.choices[0].message.content, flags=DOTALL)
-theme = response["theme"]
-content = response["content"]
+# response = search(r"<-(?P<theme>[^>]+)->\s*(?P<content>.*)", hada.choices[0].message.content, flags=DOTALL)
+# theme = response["theme"]
+# content = response["content"]
 
-# Saves the new content of the same theme together
-mem = None
-with open(MEMORY, "r", encoding="utf-8") as f:
-    mem = dict(loads(f.read()))
-if mem.get(theme) == None:
-    mem[theme] = []
-mem[theme].append(content)
-with open(MEMORY, "w", encoding="utf-8") as f:
-    f.write(dumps(mem, ensure_ascii=False, indent=2))
+# # Saves the new content of the same theme together
+# mem = None
+# with open(MEMORY, "r", encoding="utf-8") as f:
+#     mem = dict(loads(f.read()))
+# if mem.get(theme) == None:
+#     mem[theme] = []
+# mem[theme].append(content)
+# with open(MEMORY, "w", encoding="utf-8") as f:
+#     f.write(dumps(mem, ensure_ascii=False, indent=2))
 
-# RESPONSE
-print(theme)
-print(content)
+# # RESPONSE
+# print(theme)
+# print(content)
 
 # EXAMPLE
 # ChatCompletionResponse(

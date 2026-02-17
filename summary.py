@@ -9,7 +9,7 @@
 # "La IA “amiga” genera texto bonito; la memoria guarda esencia, no el texto bonito."
 # Recuerda eso, hay que meter la memoria en claro, no todo resumido.
 
-#TODO System prompt
+#* Completado System prompt
 # El contenido de system, separarlo en otro archivo para modificarlo de una manera mas rapida
 # manteniendo el codigo mas corto y mas limpio
 
@@ -27,11 +27,13 @@ from cerebras.cloud.sdk import Cerebras
 from json import dumps, loads
 from pathlib import Path
 
+from tools import summary_system
+
 # Load .env file into space
 load_dotenv()
 
 # AI Memory path
-MEMORY = Path("memory.hada")
+MEMORY = Path("mem/memory.hada")
 if not MEMORY.exists(): # Creates the file if not exists
     with MEMORY.open("w", encoding="utf-8") as f:
         f.write(dumps({}))
@@ -50,32 +52,7 @@ hada = client.chat.completions.create(
     messages=[
         {
             "role": "system",
-            "content": """
-            You are a memory compression tool for a main AI assistant.
-            Return ONLY valid JSON. Plain text values only. No Markdown. No commentary.
-
-            Primary goal: reduce token usage while preserving the user's intent and the most useful facts.
-            Never add new information. Never guess. If something is uncertain, keep it as uncertain.
-
-            Compression rules:
-            - Keep only durable, decision-relevant info: identities, preferences, constraints, goals, definitions, configs, credentials-placeholders, dates, numbers, plans, conclusions, and outcomes.
-            - Drop filler, politeness, examples, repeated wording, and low-signal detail.
-            - Merge duplicates and near-duplicates into one canonical statement.
-            - Normalize wording: consistent names, units, and terminology.
-            - If there are conflicts, keep the latest version and note the conflict briefly.
-
-            Output rules:
-            - One record per theme.
-            - Summaries must be concise (target 20-60 words per theme).
-            - key_facts: 3-10 items max, short and non-redundant.
-            - open_questions: include only if the input explicitly contains unanswered questions.
-
-            Schema:
-            {
-                "THEME": ["CONTENT"],
-                "THEME": ["CONTENT"]
-            }
-            """,
+            "content": summary_system(),
         },
         {
             "role": "user",

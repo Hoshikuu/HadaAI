@@ -1,2 +1,5 @@
 dotenv >= 1.2.0
 cerebras_cloud_sdk >= 1.67.0
+huggingface_hub >= 1.4.0
+torch >= 2.10.0
+transformers >= 5.2.0
