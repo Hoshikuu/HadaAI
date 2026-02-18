@@ -1,145 +1,105 @@
-# Hada Tu amiga IA de confianza
+"""
+Hada - Entry point
+Modos:
+  python main.py          → chat de texto puro
+  python main.py --voice  → ASR (mic) + TTS (audio out)
+  python main.py --image path/img.png  → turno con visión
+"""
+import argparse
+import uuid
+from pipeline import run_turn
+import budget
 
-#TODO Optimizacion de tokens
-# Cambiar la memoria para ahorrar en tokens
-# uso promedio ahora 1000tokens por request
-# si la memoria se amplia esto no va a aguantar
-# con el millon de tokens diarios
+SESSION_ID = str(uuid.uuid4())[:8]
+history = []
 
-#TODO Functions
-# Lo mismo que en el otro script 
-# wrapear todo en funciones para mantener el orden
+def print_budget():
+    remaining = budget.remaining()
+    mode = budget.budget_mode()
+    print(f"  [Budget: {remaining:,} tokens restantes | modo: {mode}]")
 
-#* Completado System prompt
-# Separar el system prompt en un archivo diferente
-# para mantener el orden dentro del codigo
-# y tener una mejor manera de controlar el codigo
+def text_loop(image_path: str = None):
+    print("Hada lista. Escribe 'exit' para salir, 'budget' para ver tokens.\n")
+    while True:
+        try:
+            user_input = input("Tu: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nHasta luego.")
+            break
 
-#TODO Tools
-# Añadir herramientas de scripts separados
-# para facilitar la lectura de archivos
-# por ejemplo para leer la memoria
-# o el system prompt
-#* Completado leer System Prompt
+        if not user_input:
+            continue
+        if user_input.lower() == "exit":
+            break
+        if user_input.lower() == "budget":
+            print_budget()
+            continue
 
-#TODO Continued
-# Continuar enviando el mensaje 
-# y que no se pare al enviar un solo mensaje
+        response = run_turn(
+            user_text=user_input,
+            history=history,
+            session_id=SESSION_ID,
+            image_path=image_path,
+        )
+        image_path = None  # VL solo en el primer turno con imagen
 
-#TODO STT & TTS
-# BAJA PRIORIDAD
+        history.append({"role": "user", "content": user_input})
+        history.append({"role": "assistant", "content": response})
 
-from dotenv import load_dotenv
-from os import getenv
-from cerebras.cloud.sdk import Cerebras
-from re import search, DOTALL
-from json import dumps, loads
-from pathlib import Path
+        print(f"Hada: {response}\n")
 
-from tools import hada_system
+def voice_loop():
+    from asr import transcribe
+    from tts import speak
+    import sounddevice as sd
+    import soundfile as sf
+    import numpy as np
 
-# Load .env file into space
-load_dotenv()
+    FS = 16000
+    DUR = 5
+    print("Modo voz activo. Ctrl+C para salir.\n")
 
-# AI Memory path
-MEMORY = Path("mem/memory.hada")
-if not MEMORY.exists(): # Creates the file if not exists
-    with MEMORY.open("w", encoding="utf-8") as f:
-        f.write(dumps({}))
+    while True:
+        try:
+            input("[ Pulsa Enter para hablar... ]")
+            print("Grabando...")
+            audio = sd.rec(int(DUR * FS), samplerate=FS, channels=1, dtype="float32")
+            sd.wait()
+            sf.write("tmp_input.wav", audio, FS)
 
-# Reads the memory
-mem = None
-with open(MEMORY, "r", encoding="utf-8") as f:
-    mem = dict(loads(f.read()))
+            user_text = transcribe("tmp_input.wav")
+            if not user_text:
+                print("No entendí nada, repite.")
+                continue
+            print(f"Tu: {user_text}")
 
-# AI API Client
-client = Cerebras(api_key=getenv("TOKEN"))
+            response = run_turn(
+                user_text=user_text,
+                history=history,
+                session_id=SESSION_ID,
+            )
+            history.append({"role": "user", "content": user_text})
+            history.append({"role": "assistant", "content": response})
 
-# User message
-message = input("Tu: ")
+            print(f"Hada: {response}")
+            audio_path = speak(response)
 
-# REQUEST
-hada = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": hada_system(),
-        },
-        # {
-        #     "role": "system",
-        #     "content": "MEMORIA (SOLO LECTURA)" + dumps(mem),
-        # },
-        {
-            "role": "user",
-            "content": message,
-        }
-    ],
-    model="gpt-oss-120b",
-    max_completion_tokens=1000,
-    temperature=1,
-    top_p=1,
-    reasoning_effort="low"
-)
+            data, sr = sf.read(audio_path)
+            sd.play(data, sr)
+            sd.wait()
 
-# Separates the AI response with theme and the content
-print(hada.choices[0].message.content)
-# response = search(r"<-(?P<theme>[^>]+)->\s*(?P<content>.*)", hada.choices[0].message.content, flags=DOTALL)
-# theme = response["theme"]
-# content = response["content"]
+        except KeyboardInterrupt:
+            print("\nHasta luego.")
+            break
 
-# # Saves the new content of the same theme together
-# mem = None
-# with open(MEMORY, "r", encoding="utf-8") as f:
-#     mem = dict(loads(f.read()))
-# if mem.get(theme) == None:
-#     mem[theme] = []
-# mem[theme].append(content)
-# with open(MEMORY, "w", encoding="utf-8") as f:
-#     f.write(dumps(mem, ensure_ascii=False, indent=2))
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--voice", action="store_true", help="Modo voz (ASR + TTS)")
+    parser.add_argument("--image", type=str, default=None, help="Ruta a imagen para VL")
+    args = parser.parse_args()
 
-# # RESPONSE
-# print(theme)
-# print(content)
-
-# EXAMPLE
-# ChatCompletionResponse(
-#     id='chatcmpl-99417c26-18a8-4100-ac72-ba7c1dc072b8', 
-#     choices=[
-#         ChatCompletionResponseChoice(
-#             finish_reason='stop', 
-#             index=0, 
-#             message=ChatCompletionResponseChoiceMessage(
-#                 role='assistant', 
-#                 content='Hello! 👋 How can I assist you today?', 
-#                 reasoning='We need to respond. The user just said "Hello". We should greet back. Possibly ask how can help. No specific instruction. Just friendly.', 
-#                 tool_calls=None
-#             ), 
-#             logprobs=None, 
-#             reasoning_logprobs=None
-#         )
-#     ], 
-#     created=1771195917, 
-#     model='gpt-oss-120b', 
-#     object='chat.completion', 
-#     system_fingerprint='fp_2d389d34367dd22b92f3', 
-#     time_info=ChatCompletionResponseTimeInfo(
-#         completion_time=0.025622551, 
-#         prompt_time=0.001376392, 
-#         queue_time=0.003943507, 
-#         total_time=0.03223156929016113, 
-#         created=1771195917.383853
-#     ), 
-#     usage=ChatCompletionResponseUsage(
-#         completion_tokens=51, 
-#         completion_tokens_details=ChatCompletionResponseUsageCompletionTokensDetails(
-#             accepted_prediction_tokens=0, 
-#             rejected_prediction_tokens=0, 
-#             reasoning_tokens=0
-#         ), 
-#         prompt_tokens=68, 
-#         prompt_tokens_details=ChatCompletionResponseUsagePromptTokensDetails(
-#             cached_tokens=0
-#         ), 
-#         total_tokens=119), 
-#     service_tier=None
-# )
+    print_budget()
+    if args.voice:
+        voice_loop()
+    else:
+        text_loop(image_path=args.image)
