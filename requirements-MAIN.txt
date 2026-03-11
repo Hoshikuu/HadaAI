@@ -1,4 +1,0 @@
-dotenv == 0.9.9
-cerebras_cloud_sdk == 1.67.0
-sounddevice == 0.5.5
-soundfile == 0.13.1

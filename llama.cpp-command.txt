@@ -1,0 +1,23 @@
+.\llama.cpp\build\bin\Release\llama-server.exe `
+  --model "C:\Users\weibo\Desktop\Prog\Python\HadaAI\models\Qwen3.5-9B-Q4_K_M.gguf" `
+  --alias "Hoshiku/HadaAI" `
+  --host 127.0.0.1 `
+  --port 8000 `
+  --ctx-size 16384 `
+  --predict 512 `
+  --threads 8 `
+  --threads-batch 8 `
+  --gpu-layers 16 `
+  --temp 0.85 `
+  --top-p 1.0 `
+  --top-k 40 `
+  --min-p 0.0 `
+  --presence-penalty 2.0 `
+  --repeat-penalty 1.1 `
+  --frequency-penalty 0.5 `
+  --parallel 1 `
+  --no-warmup `
+  --chat-template-kwargs '{\"enable_thinking\":false}' `
+  --webui `
+  --mmproj "C:\Users\weibo\Desktop\Prog\Python\HadaAI\models\mmproj-BF16.gguf" `
+  --image-min-tokens 1024
