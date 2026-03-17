@@ -1,3 +1,3 @@
 # HADA AI
 
-Backend Ai with GPT OSS 120B
+Backend with Qwen3.5 9B installed locally running with llama.cpp
