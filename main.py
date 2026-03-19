@@ -1,12 +1,15 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/main.py - V0.0.2
+#   HadaAI/main.py - V0.0.3
 
 from asyncio import run, sleep as asleep, create_task, get_event_loop
 from openai import OpenAI
-from tools.reader import SystemPrompt
-from hada.hada_init import StartHada, StopHada
+from hada import Hada
+
+def HadaPrompt(version):
+    with open(f"prompts/hadaV{version}.txt", "r") as f:
+        return f.read()
 
 def query_hada(prompt: str):
     """Bloqueante, corre en thread."""
@@ -17,7 +20,7 @@ def query_hada(prompt: str):
     stream = client.chat.completions.create(
         model="Hoshiku/HadaAI",
         messages=[
-            {"role": "system", "content": SystemPrompt()},
+            {"role": "system", "content": HadaPrompt(4)},
             {"role": "user", "content": prompt}
         ],
         extra_body={
@@ -34,15 +37,17 @@ def query_hada(prompt: str):
     return response
 
 async def main():
+    hada = Hada()
     loop = get_event_loop()
-    task = create_task(StartHada())
+    task = create_task(hada.StartHada())
 
     await asleep(10)  # espera a que llama-server arranque
 
     # Consulta en thread para no bloquear el event loop
-    response = await loop.run_in_executor(None, query_hada, "Holaa hada como va hoy todo?")
+    response = await loop.run_in_executor(None, query_hada, "Quien eres?")
 
-    StopHada()
+    hada.StopHada()
     await task
 
-run(main())
+if __name__ == "__main__":
+    run(main())

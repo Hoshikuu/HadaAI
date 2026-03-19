@@ -1,1 +1,0 @@
-.\llama.cpp\build\bin\Release\llama-server.exe --model "C:\Users\weibo\Desktop\Prog\Python\HadaAI\hada\models\HadaAI.gguf" --alias "Hoshiku/HadaAI" --host 127.0.0.1 --port 8000 --ctx-size 16384 --predict 1024 --threads 8 --gpu-layers 16 --temp 1.0 --top-p 1.0 --top-k 40 --min-p 0.0 --presence-penalty 2.0 --repeat-penalty 1.0 --no-webui

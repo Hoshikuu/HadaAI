@@ -21,4 +21,4 @@
 └── 📄 requirements.txt
 ```
 
-Backend with Qwen3.5 9B installed locally running with llama.cpp
+Backend with Qwen3.5 9B installed locally running with llama.cpp build B8263
