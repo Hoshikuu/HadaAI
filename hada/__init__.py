@@ -1,1 +1,0 @@
-from .hada_init import Hada
