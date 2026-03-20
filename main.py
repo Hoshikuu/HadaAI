@@ -1,11 +1,12 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/main.py - V0.0.3
+#   HadaAI/main.py - V0.0.4
 
-from asyncio import run, sleep as asleep, create_task, get_event_loop
+from asyncio import run, sleep, create_task, get_event_loop
 from openai import OpenAI
 from hada import Hada
+from hada.stt_init import STT
 
 def HadaPrompt(version):
     with open(f"prompts/hadaV{version}.txt", "r") as f:
@@ -38,16 +39,19 @@ def query_hada(prompt: str):
 
 async def main():
     hada = Hada()
+    stt = STT()
     loop = get_event_loop()
     task = create_task(hada.StartHada())
 
-    await asleep(10)  # espera a que llama-server arranque
+    await sleep(10)  # espera a que llama-server arranque
 
     # Consulta en thread para no bloquear el event loop
-    response = await loop.run_in_executor(None, query_hada, "Quien eres?")
+    prompt = stt.Start()
+    response = await loop.run_in_executor(None, query_hada, prompt)
 
     hada.StopHada()
     await task
+    stt.Stop()
 
 if __name__ == "__main__":
     run(main())
