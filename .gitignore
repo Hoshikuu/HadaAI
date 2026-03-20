@@ -1,0 +1,6 @@
+.venv*
+.env
+Qwen*
+__pycache__
+models/
+llama.cpp/
