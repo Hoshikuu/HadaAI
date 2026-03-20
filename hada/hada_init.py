@@ -1,7 +1,7 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada_init.py - V0.2.2
+#   HadaAI/hada/hada_init.py - V0.2.2
 
 from winpty import PtyProcess
 from asyncio import sleep
