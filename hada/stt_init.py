@@ -1,14 +1,14 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada/stt_init.py - V0.1.0
+#   HadaAI/hada/stt_init.py - V0.1.1
 
 from os import _exit
 from RealtimeSTT import AudioToTextRecorderClient
 
 # stt-server --model small --language es --device cpu --compute_type int8 --beam_size 5
 
-class STT():
+class Stt():
     def __init__(self):
         self.recorder = None
 
