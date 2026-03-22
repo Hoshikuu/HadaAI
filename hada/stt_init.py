@@ -1,7 +1,7 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada/stt_init.py - V0.1.2
+#   HadaAI/hada/stt_init.py - V0.1.3
 
 from asyncio import sleep
 from RealtimeSTT import AudioToTextRecorderClient
@@ -15,21 +15,28 @@ class Stt():
     async def StartStt(self):
         proc = PtyProcess.spawn(['cmd.exe'])
 
-        print("STT will be availeble in 3 seconds...")
-        await sleep(3)
-        
-        proc.write("stt-server --model small --language es --device cpu --compute_type int8 --beam_size 5" + "\r\n")
-        
-        print("STT is loading...")
+        print("STT will be available in 3 seconds...")
         await sleep(3)
 
+        proc.write("stt-server --model small --language es --device cpu --compute_type int8 --beam_size 5\r\n")
+
+        print("STT is loading...")
+        await sleep(8)
         print("STT is UP")
 
         while self.EXECUTE and proc.isalive():
             await sleep(5)
 
-        proc.close()
+        # Cierra el cliente WebSocket antes de matar el servidor
+        if self.recorder is not None:
+            try:
+                self.recorder.shutdown()
+            except Exception:
+                pass
+            self.recorder = None
 
+        await sleep(1)  # Pequeña espera para que el shutdown complete
+        proc.close()
         print("STT OFF")
 
     def Play(self):
@@ -39,18 +46,13 @@ class Stt():
                 data_url="ws://127.0.0.1:8012",
                 language="es",
             )
-
-        text = self.recorder.text()
-        if text:
-            return text.strip()
+        try:
+            text = self.recorder.text()
+            if text:
+                return text.strip()
+            return None
+        except Exception:
+            return None
 
     def StopStt(self):
         self.EXECUTE = False
-
-    def Pause(self):
-        if self.recorder is not None:
-            try:
-                self.recorder.shutdown()
-            except Exception:
-                pass
-            self.recorder = None

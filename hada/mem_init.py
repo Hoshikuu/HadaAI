@@ -1,7 +1,7 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada/mem_init.py - V0.1.0
+#   HadaAI/hada/mem_init.py - V0.1.1
 
 import datetime
 from os.path import isfile
@@ -27,9 +27,9 @@ class Mem():
         self.ReadFile()
 
         with open(self.mem_file, "w+", encoding="utf-8") as f:
-            content += f"_user_:{_in}\n"
-            content += f"_hada_:{_out}\n"
-            f.write(content)
+            self.content += f"_user_:{_in}\n"
+            self.content += f"_hada_:{_out}\n"
+            f.write(self.content)
 
     def ReadMem(self):
         self.mem_file = f"hada/mem/{datetime.date.today()}.hada"

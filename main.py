@@ -1,9 +1,9 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/main.py - V0.0.6
+#   HadaAI/main.py - V0.1.0
 
-from asyncio import run, sleep, create_task, get_event_loop
+from asyncio import run, sleep, create_task, get_event_loop, CancelledError
 from openai import OpenAI
 from hada import Hada, Stt, Mem
 
@@ -42,26 +42,32 @@ async def main():
     hada = Hada()
     stt = Stt()
     mem = Mem()
+
     loop = get_event_loop()
     task_hada = create_task(hada.StartHada())
     task_stt = create_task(stt.StartStt())
 
-    await sleep(10)  # espera a que llama-server arranque
+    await sleep(10)
 
-    # Consulta en thread para no bloquear el event loop
-    prompt = await loop.run_in_executor(None, stt.Play)
-    print(prompt)
-    await loop.run_in_executor(None, stt.Pause)
-    # prompt = "hada porque eres tan fria conmigo?"
-
-    response = await loop.run_in_executor(None, query_hada, prompt, mem)
-
-    mem.Register(prompt, response)
-
-    stt.StopStt()
-    await task_stt
-    hada.StopHada()
-    await task_hada
+    try:
+        while True:
+            prompt = await loop.run_in_executor(None, stt.Play)
+            await sleep(1)
+            if prompt is None:
+                break
+            print(prompt)
+            response = await loop.run_in_executor(None, query_hada, prompt, mem)
+            mem.Register(prompt, response)
+    except (KeyboardInterrupt, CancelledError):
+        pass
+    finally:
+        stt.StopStt()
+        await task_stt
+        hada.StopHada()
+        await task_hada
 
 if __name__ == "__main__":
-    run(main())
+    try:
+        run(main())
+    except KeyboardInterrupt:
+        pass
