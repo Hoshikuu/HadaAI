@@ -36,11 +36,11 @@ class Hada():
         self.predict = 1024     # Maximo de tokens para poder generar texto
         self.threads = 8        # Maximo de hilos de CPU para usar
         self.gpu = 16           # Maximo de capas para ejecutar en GPU
-        self.temp = 1.0         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
-        self.top_p = 1.0        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
-        self.top_k = 40         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
+        self.temp = 0.7         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
+        self.top_p = 0.8        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
+        self.top_k = 10         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
         self.min_p = 0.0        # Considera tokens cuya probabilidad sea como minimo el porcentaje
-        self.presence = 2.0     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
+        self.presence = 1.5     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
         self.repeat = 1.0       # Penaliza tokens basandose en aparicion para evitar bucles infinitos
 
     def __str__(self):
@@ -110,6 +110,8 @@ class Hada():
             f'--min-p {self.min_p} ',
             f'--presence-penalty {self.presence} ',
             f'--repeat-penalty {self.repeat} ',
+            '--batch-size 512 ',
+            '--ubatch-size 256 ',
             '--no-webui '
         ]
         for arg in args:
