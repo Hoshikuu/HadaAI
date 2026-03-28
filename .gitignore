@@ -1,7 +1,7 @@
-.venv*
-.env
-Qwen*
+.venv
+
 __pycache__
+
 models/
-llama.cpp/
 mem/
+llama.cpp/
