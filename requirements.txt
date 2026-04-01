@@ -4,4 +4,5 @@ RealtimeSTT >= 0.3.104
 RealtimeTTS[kokoro] >= 0.6.0
 librosa >= 0.11.0
 sounddevice >= 0.5.5
-numpy >= 2.4.3
+numpy < 2.0.0
+chatterbox-tts >= 0.1.7
