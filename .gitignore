@@ -6,3 +6,5 @@ models/
 mem/
 llama.cpp/
 tasks/
+voices/
+piper/

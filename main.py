@@ -1,11 +1,12 @@
-#   ----------------------------------------------------
-#          Hoshikuu - https://github.com/Hoshikuu
-#   ----------------------------------------------------
-#   HadaAI/main.py - V0.1.1
+# ----------------------------------------------------
+# Hoshikuu - https://github.com/Hoshikuu
+# ----------------------------------------------------
+# HadaAI/main.py - V0.2.0
 
 from asyncio import run, sleep, create_task, get_event_loop, CancelledError
 from openai import OpenAI
-from hada import Hada, Stt, Mem
+from hada import Hada, Stt, Mem, Tts
+
 
 def HadaPrompt(version: int):
     """Reads the Hada System Prompt
@@ -16,90 +17,106 @@ def HadaPrompt(version: int):
     Returns:
         str: The content of that specific version
     """
-    # Lee el archivo dependiendo de la version indicada
     with open(f"hada/prompts/hadaV{version}.txt", "r") as f:
         return f.read()
 
-def QueryHada(prompt: str, mem: Mem):
-    """Query to ask to Hada
+
+def QueryHada(prompt: str, mem: "Mem", tts: "Tts" = None):
+    """Query to ask to Hada.
+
+    Si se pasa una instancia de Tts, la respuesta se habla en tiempo real
+    mientras el stream de tokens se genera (latencia mínima).
 
     Args:
         prompt (str): The prompt string to pass it to Hada
-        mem (Mem): The memory class initilized in main
+        mem    (Mem): The memory class initialized in main
+        tts    (Tts): TTS module (opcional). Si None, solo imprime.
 
     Returns:
         str: The response of Hada
     """
-
-    # Url donde este hosteado Hada
     client = OpenAI(
         base_url="http://localhost:8000/v1",
         api_key="no-key"
     )
 
-    # Lee la memorua de Hada
     memories = mem.ReadMem()
-    # Añade el system prompt
     messages = [{"role": "system", "content": HadaPrompt(4)}]
-    # Añade el historial de mensajes de la memoria a mensajes
     for memory in memories:
         messages.append(memory)
-    # Añade el ultimo mensaje solicitado
     messages.append({"role": "user", "content": prompt})
 
-    # Hace la solicitud a Hada
     stream = client.chat.completions.create(
         model="Hoshiku/HadaAI",
         messages=messages,
-        extra_body={
-            "chat_template_kwargs": {"enable_thinking": False}, # Desactiva el Thinking de Hada
-        }, 
-        stream=True, # Devuelve el texto en trozos
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+        stream=True,
     )
 
-    # Procesamiento de la respuesta
     response = ""
-    for chunk in stream:
-        text = chunk.choices[0].delta.content or ""
-        # Hace el efecto de generacion de texto poco a poco
-        print(text, end="", flush=True)
-        response += text # Guarda cada trozo en la variable de respuesta
-    print()
+
+    if tts:
+        # Generator que imprime Y alimenta el TTS al mismo tiempo
+        def _token_gen():
+            nonlocal response
+            for chunk in stream:
+                text = chunk.choices[0].delta.content or ""
+                print(text, end="", flush=True)
+                response += text
+                yield text
+            print()
+
+        # SpeakGenerator consume el generator:
+        # el audio empieza antes de que Hada termine de responder
+        tts.SpeakGenerator(_token_gen())
+    else:
+        for chunk in stream:
+            text = chunk.choices[0].delta.content or ""
+            print(text, end="", flush=True)
+            response += text
+        print()
+
     return response
+
 
 async def main():
     """Async main function
     """
-    # Inicializa los modulos
+    # Inicializa los módulos
     hada = Hada()
-    stt = Stt()
-    mem = Mem()
+    stt  = Stt()
+    mem  = Mem()
+    tts  = Tts(speaker="F")   # Voz femenina sharvard — pasa dev_panel=True para el panel
 
-    # No se que hace
     loop = get_event_loop()
+
     # Crea las tareas para ejecutar Hada y Stt
     task_hada = create_task(hada.StartHada())
-    task_stt = create_task(stt.StartStt())
+    task_stt  = create_task(stt.StartStt())
 
-    await sleep(10)
+    await sleep(25)
 
     try:
-        # Funcion principal para hacer preguntas a Hada
         while True:
             prompt = await loop.run_in_executor(None, stt.Play)
             await sleep(1)
             if prompt is None:
                 break
             print(prompt)
-            response = await loop.run_in_executor(None, QueryHada, prompt, mem)
+            # Pasa tts a QueryHada para que Hada hable mientras genera
+            response = await loop.run_in_executor(None, QueryHada, prompt, mem, tts)
             mem.Register(prompt, response)
+
     except (KeyboardInterrupt, CancelledError):
         pass
+
     finally:
+        tts.StopTts()
         stt.StopStt()
         await task_stt
         hada.StopHada()
         await task_hada
+
 
 if __name__ == "__main__":
     """Main function
