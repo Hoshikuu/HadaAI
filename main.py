@@ -1,27 +1,35 @@
 # ----------------------------------------------------
 # Hoshikuu - https://github.com/Hoshikuu
 # ----------------------------------------------------
-# HadaAI/main.py - V0.2.0
+# HadaAI/main.py - V0.2.1
 
 from asyncio import run, sleep, create_task, get_event_loop, CancelledError
 from openai import OpenAI
 from hada import Hada, Stt, Mem, Tts
 
-
-def HadaPrompt(version: int):
+def HadaPrompt(version: str, default: str = "5"):
     """Reads the Hada System Prompt
 
     Args:
-        version (int): The version of Hada System Prompt
+        version (str): The version of Hada System Prompt.
+        default (str, optional): Fallback version if the specified version is wrong. Defaults to version 5.
 
     Returns:
         str: The content of that specific version
     """
-    with open(f"hada/prompts/hadaV{version}.txt", "r") as f:
-        return f.read()
+    if version == None or version == "":
+        version = default
 
+    try:
+        with open(f"hada/prompts/system/hadaV{version}.txt", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        with open(f"hada/prompts/system/hadaV{default}.txt", "r") as f:
+            return f.read()
+    except Exception as e:
+        print("Error inesperado en HadaPrompt()", e)
 
-def QueryHada(prompt: str, mem: "Mem", tts: "Tts" = None):
+def QueryHada(prompt: str, mem: Mem, tts: Tts = None):
     """Query to ask to Hada.
 
     Si se pasa una instancia de Tts, la respuesta se habla en tiempo real
@@ -41,7 +49,7 @@ def QueryHada(prompt: str, mem: "Mem", tts: "Tts" = None):
     )
 
     memories = mem.ReadMem()
-    messages = [{"role": "system", "content": HadaPrompt(4)}]
+    messages = [{"role": "system", "content": HadaPrompt("6.3")}]
     for memory in memories:
         messages.append(memory)
     messages.append({"role": "user", "content": prompt})
@@ -78,7 +86,6 @@ def QueryHada(prompt: str, mem: "Mem", tts: "Tts" = None):
 
     return response
 
-
 async def main():
     """Async main function
     """
@@ -94,7 +101,9 @@ async def main():
     task_hada = create_task(hada.StartHada())
     task_stt  = create_task(stt.StartStt())
 
+    # Si el programa te abre un CMD ejecutando el STT, intenta aumentar este sleep para darle tiempo al stt a inicarse
     await sleep(25)
+    #TODO Solucionar este tipo de cosas para hacer una espera dinamica segun lo que tarde en inicarse los modulos
 
     try:
         while True:
@@ -116,7 +125,6 @@ async def main():
         await task_stt
         hada.StopHada()
         await task_hada
-
 
 if __name__ == "__main__":
     """Main function
