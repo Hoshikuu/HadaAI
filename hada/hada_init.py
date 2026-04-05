@@ -1,7 +1,7 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada_init.py - V0.2.2
+#   HadaAI/hada/hada_init.py - V0.2.3
 
 from winpty import PtyProcess
 from asyncio import sleep
@@ -36,11 +36,11 @@ class Hada():
         self.predict = 1024     # Maximo de tokens para poder generar texto
         self.threads = 8        # Maximo de hilos de CPU para usar
         self.gpu = 16           # Maximo de capas para ejecutar en GPU
-        self.temp = 1.0         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
-        self.top_p = 1.0        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
-        self.top_k = 40         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
+        self.temp = 0.7         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
+        self.top_p = 0.8        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
+        self.top_k = 10         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
         self.min_p = 0.0        # Considera tokens cuya probabilidad sea como minimo el porcentaje
-        self.presence = 2.0     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
+        self.presence = 1.5     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
         self.repeat = 1.0       # Penaliza tokens basandose en aparicion para evitar bucles infinitos
 
     def __str__(self):
@@ -94,19 +94,25 @@ class Hada():
         """Makes the String to execute Hada with llama.cpp
         """
         self.llama_command = ''
-        self.llama_command += r'.\llama.cpp\build\bin\Release\llama-server.exe '
-        self.llama_command += fr'--model "hada\models\HadaAI-{self.model}.gguf" '
-        self.llama_command += '--alias "Hoshiku/HadaAI" '
-        self.llama_command += f'--host {self.host} '
-        self.llama_command += f'--port {self.port} '
-        self.llama_command += f'--ctx-size {self.context} '
-        self.llama_command += f'--predict {self.predict} '
-        self.llama_command += f'--threads {self.threads} '
-        self.llama_command += f'--gpu-layers {self.gpu} '
-        self.llama_command += f'--temp {self.temp} '
-        self.llama_command += f'--top-p {self.top_p} '
-        self.llama_command += f'--top-k {self.top_k} '
-        self.llama_command += f'--min-p {self.min_p} '
-        self.llama_command += f'--presence-penalty {self.presence} '
-        self.llama_command += f'--repeat-penalty {self.repeat} '
-        self.llama_command += '--no-webui '
+        args = [
+            r'.\llama.cpp\build\bin\Release\llama-server.exe ',
+            fr'--model "hada\models\HadaAI-{self.model}.gguf" ',
+            '--alias "Hoshiku/HadaAI" ',
+            f'--host {self.host} ',
+            f'--port {self.port} ',
+            f'--ctx-size {self.context} ',
+            f'--predict {self.predict} ',
+            f'--threads {self.threads} ',
+            f'--gpu-layers {self.gpu} ',
+            f'--temp {self.temp} ',
+            f'--top-p {self.top_p} ',
+            f'--top-k {self.top_k} ',
+            f'--min-p {self.min_p} ',
+            f'--presence-penalty {self.presence} ',
+            f'--repeat-penalty {self.repeat} ',
+            '--batch-size 512 ',
+            '--ubatch-size 256 ',
+            '--no-webui '
+        ]
+        for arg in args:
+            self.llama_command += arg

@@ -1,2 +1,16 @@
+# LLM Managment
 openai >= 2.29.0
+
+# Background Executions
 pywinpty >= 3.0.3
+
+# Voice
+RealtimeSTT >= 0.3.104
+RealtimeTTS[kokoro] >= 0.6.0
+
+# Voice Mod
+librosa >= 0.11.0
+sounddevice >= 0.5.5
+
+# Web Server
+flask >= 3.1.3
