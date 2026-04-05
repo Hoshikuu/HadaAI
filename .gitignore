@@ -1,10 +1,20 @@
+# --- Python environment ---
 .venv
-
 __pycache__
 
-models/
-mem/
+# --- LLM models ---
+*.gguf
+
+# --- Mem files ---
+*.hada
+
+# --- Voices files ---
+*.onnx
+*.onnx.json
+
+# --- Tasks files ---
+tasks.json
+
+# --- Software ---
 llama.cpp/
-tasks/
-voices/
 piper/
