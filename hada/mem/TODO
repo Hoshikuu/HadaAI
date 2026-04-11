@@ -1,0 +1,50 @@
+# La memoria consistira de la siguiente forma
+
+# Un archivo "session.hada"
+
+Este fichero marcara la conversacion completa de la sesion, incluyendo todos los chats
+
+se marcara con un formato simple, "/EOH/" y "/EOU/" Esto contara como un caracter especial que hara de delimitador dentro del archivo de sesiones
+EOH - End Of Hada - EOU - End Of User
+Marcara que es lo que ha dicho cada parte respectivamente
+hola como esta/EOU/Todo bien y tu?/EOH/
+
+El archivo siempre empezara con un "/SOF/" Start Of File, y terminara siempre con un "/EOF/" End Of File, esto marcara los limites del archivo
+teniendo en cuenta todo esto quedaria asi el fichero anterior
+/SOF/hola como esta/EOU/Todo bien y tu?/EOH//EOF/
+
+teniendo en cuenta toda esta informacion podemos saber
+lo que este despues de un /SOF/ y antes de otro delimitador, sera de quien sea el delimitador /EOU/ - USER
+por ejemplo
+/SOF/hola como esta/EOU/Todo bien y tu?/EOH//EOF/
+SOF, texto1, User, Texto2, Hada, EOF
+con este esquema ya podemos relacionar de quien es cada texto
+siendo texto1 de User y texto2 de Hada
+
+# Otros archivos de memoria
+
+persons.hada
+topics.hada
+memories.hada
+
+multiples archivos definiendo diferentes cosas
+por ejemplo la memoria de personas, se guardara una pequeña introduccion de cada persona,
+gustos, disgustos, hobbies, que hace, demas
+
+{
+    person: name,
+    age: 18,
+    etc...
+}
+
+para los otros archivos como por ejemplo el topic, serian temas de conversacion abarcadas, y demas
+esto hay que pensarlo mejor para saber como estructurarlo
+
+la de memorias, acontecimeintos que han pasado etc
+
+y pasarlos todos a Hada
+recoradar no superar los 1000tokens a la vez
+para no penalizar tanto la velocidad del modelo
+
+se podria intentar comprimir toda la memoria en chino para ahorrar tokens aunque la estabilidad del modelo
+no esta comprobada

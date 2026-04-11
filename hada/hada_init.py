@@ -1,7 +1,7 @@
 #   ----------------------------------------------------
 #          Hoshikuu - https://github.com/Hoshikuu
 #   ----------------------------------------------------
-#   HadaAI/hada/hada_init.py - V0.2.3
+#   HadaAI/hada/hada_init.py - V0.2.4
 
 from winpty import PtyProcess
 from asyncio import sleep
@@ -34,14 +34,14 @@ class Hada():
         #! AI PARAM TWEAKING
         self.context = 16384    # Maximo de tokens para usarlo de contexto del modelo
         self.predict = 1024     # Maximo de tokens para poder generar texto
-        self.threads = 8        # Maximo de hilos de CPU para usar
+        self.threads = 6        # Maximo de hilos de CPU para usar
         self.gpu = 16           # Maximo de capas para ejecutar en GPU
         self.temp = 0.7         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
-        self.top_p = 0.8        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
-        self.top_k = 10         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
-        self.min_p = 0.0        # Considera tokens cuya probabilidad sea como minimo el porcentaje
-        self.presence = 1.5     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
-        self.repeat = 1.0       # Penaliza tokens basandose en aparicion para evitar bucles infinitos
+        self.top_p = 0.9        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
+        self.top_k = 40         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
+        self.min_p = 0.05       # Considera tokens cuya probabilidad sea como minimo el porcentaje
+        self.presence = 0.1     # Penaliza tokens que ya han aparecido en el texto generado sin importar cuantas veces
+        self.repeat = 1.1       # Penaliza tokens basandose en aparicion para evitar bucles infinitos
 
     def __str__(self):
         pass
@@ -110,8 +110,12 @@ class Hada():
             f'--min-p {self.min_p} ',
             f'--presence-penalty {self.presence} ',
             f'--repeat-penalty {self.repeat} ',
-            '--batch-size 512 ',
-            '--ubatch-size 256 ',
+            '--batch-size 2048 ',
+            '--ubatch-size 512 ',
+            '--flash-attn on ',
+            '--cache-type-k q8_0 ',
+            '--cache-type-v q8_0 ',
+            '--jinja ',
             '--no-webui '
         ]
         for arg in args:

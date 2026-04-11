@@ -1,7 +1,7 @@
 # ----------------------------------------------------
 # Hoshikuu - https://github.com/Hoshikuu
 # ----------------------------------------------------
-# HadaAI/main.py - V0.2.1
+# HadaAI/main.py - V0.2.2
 
 from asyncio import run, sleep, create_task, get_event_loop, CancelledError
 from openai import OpenAI
@@ -49,7 +49,7 @@ def QueryHada(prompt: str, mem: Mem, tts: Tts = None):
     )
 
     memories = mem.ReadMem()
-    messages = [{"role": "system", "content": HadaPrompt("6.3")}]
+    messages = [{"role": "system", "content": HadaPrompt("7")}]
     for memory in memories:
         messages.append(memory)
     messages.append({"role": "user", "content": prompt})
@@ -90,7 +90,7 @@ async def main():
     """Async main function
     """
     # Inicializa los módulos
-    hada = Hada()
+    hada = Hada(model="big")
     stt  = Stt()
     mem  = Mem()
     tts  = Tts(speaker="F")   # Voz femenina sharvard — pasa dev_panel=True para el panel
