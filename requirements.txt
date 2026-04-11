@@ -7,7 +7,7 @@ pywinpty >= 3.0.0
 
 # Voice
 RealtimeSTT >= 0.3.100
-RealtimeTTS[kokoro] >= 0.6.0
+RealtimeTTS >= 0.6.0
 
 # Voice Mod
 librosa >= 0.11.0
