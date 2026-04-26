@@ -23,3 +23,9 @@ piper/
 
 # --- DEV TMP ---
 dev.*.tmp
+
+hubert_base.pt
+rmvpe.pt
+
+hada.index
+hada.pth
