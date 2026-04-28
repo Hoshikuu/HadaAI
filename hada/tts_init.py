@@ -12,7 +12,6 @@ from RealtimeTTS import TextToAudioStream
 from RealtimeTTS.engines.kokoro_engine import KokoroEngine
 
 from hada.utils.infer.modules import VC
-from hada.utils.infer.utils import load_hubert
 from hada.utils.configs.config import Config
 from hada.utils.rmvpe import RMVPE
 
@@ -37,10 +36,9 @@ _config.device = "cuda" if torch.cuda.is_available() else "cpu"
 _config.is_half = _config.device == "cuda"
 sys.argv = _orig_argv
 
-_vc = VC(_config, "hada/voices")
+_vc = VC(_config)
 _vc.weight_root = ""
-_vc.get_vc("hada.pth")
-_vc.hubert_model = load_hubert(_config)
+_vc.get_vc("hada/voices/hada.pth", "hada/models/hubert/hubert_base.pt", "hada/voices/hada.index")
 
 _rmvpe = RMVPE(
     os.path.join(os.environ["rmvpe_root"], "rmvpe.pt"),
@@ -105,10 +103,7 @@ class HadaVoicePipeline:
 
     def _infer(self, audio: np.ndarray):
         try:
-            _, (out_sr, out_data) = _vc.vc_single(
-                0, (INTERNAL_SR, audio), 2, None, "rmvpe",
-                "hada.index", None, 0.75, 3, 0, 0.25, 0.33
-            )
+            out_sr, out_data = _vc.vc_single(audio)
             # FIX 3: normalizar y resamplear aquí, antes de encolar
             processed = out_data.astype(np.float32) / (np.max(np.abs(out_data)) + 1e-9)
             if out_sr != PLAYBACK_SR:
