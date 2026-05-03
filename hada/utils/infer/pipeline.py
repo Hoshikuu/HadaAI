@@ -141,7 +141,7 @@ class Pipeline(object):
             f0 = f0[0].cpu().numpy()
         elif f0_method == "rmvpe":
             if not hasattr(self, "model_rmvpe"):
-                from utils.rmvpe import RMVPE
+                from hada.utils.rmvpe import RMVPE
 
                 logger.info(
                     "Loading rmvpe model,%s" % "%s/rmvpe.pt" % os.environ["rmvpe_root"]
