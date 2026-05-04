@@ -120,3 +120,5 @@ class Hada():
         ]
         for arg in args:
             self.llama_command += arg
+
+        print(self.llama_command)
