@@ -5,7 +5,9 @@
 
 from asyncio import run, sleep, create_task, get_event_loop, CancelledError
 from openai import OpenAI
-from hada import Hada, Stt, Mem, Tts
+from hada import Hada, Stt, Mem
+
+from hada.tts_init import speak
 
 def HadaPrompt(version: str, default: str = "5"):
     """Reads the Hada System Prompt
@@ -29,7 +31,7 @@ def HadaPrompt(version: str, default: str = "5"):
     except Exception as e:
         print("Error inesperado en HadaPrompt()", e)
 
-def QueryHada(prompt: str, mem: Mem, tts: Tts = None):
+def QueryHada(prompt: str, mem: Mem):
     """Query to ask to Hada.
 
     Si se pasa una instancia de Tts, la respuesta se habla en tiempo real
@@ -63,37 +65,25 @@ def QueryHada(prompt: str, mem: Mem, tts: Tts = None):
 
     response = ""
 
-    if tts:
-        # Generator que imprime Y alimenta el TTS al mismo tiempo
-        def _token_gen():
-            nonlocal response
-            for chunk in stream:
-                text = chunk.choices[0].delta.content or ""
-                print(text, end="", flush=True)
-                response += text
-                yield text
-            print()
+    # Generator que imprime Y alimenta el TTS al mismo tiempo
 
-        # SpeakGenerator consume el generator:
-        # el audio empieza antes de que Hada termine de responder
-        tts.SpeakGenerator(_token_gen())
-    else:
-        for chunk in stream:
-            text = chunk.choices[0].delta.content or ""
-            print(text, end="", flush=True)
-            response += text
-        print()
+    for chunk in stream:
+        text = chunk.choices[0].delta.content or ""
+        print(text, end="", flush=True)
+        response += text
 
+    speak(response)
     return response
 
 async def main():
     """Async main function
     """
     # Inicializa los módulos
-    hada = Hada(model="big")
+    hada = Hada(model="")
     stt  = Stt()
     mem  = Mem()
-    tts  = Tts(speaker="F")   # Voz femenina sharvard — pasa dev_panel=True para el panel
+
+    speak("aaaaaa")
 
     loop = get_event_loop()
 
@@ -102,7 +92,7 @@ async def main():
     task_stt  = create_task(stt.StartStt())
 
     # Si el programa te abre un CMD ejecutando el STT, intenta aumentar este sleep para darle tiempo al stt a inicarse
-    await sleep(25)
+    await sleep(10)
     #TODO Solucionar este tipo de cosas para hacer una espera dinamica segun lo que tarde en inicarse los modulos
 
     try:
@@ -110,17 +100,17 @@ async def main():
             prompt = await loop.run_in_executor(None, stt.Play)
             await sleep(1)
             if prompt is None:
+                print(prompt)
                 break
             print(prompt)
             # Pasa tts a QueryHada para que Hada hable mientras genera
-            response = await loop.run_in_executor(None, QueryHada, prompt, mem, tts)
+            response = await loop.run_in_executor(None, QueryHada, prompt, mem)
             mem.Register(prompt, response)
 
     except (KeyboardInterrupt, CancelledError):
         pass
 
     finally:
-        tts.StopTts()
         stt.StopStt()
         await task_stt
         hada.StopHada()

@@ -35,7 +35,7 @@ class Hada():
         self.context = 16384    # Maximo de tokens para usarlo de contexto del modelo
         self.predict = 1024     # Maximo de tokens para poder generar texto
         self.threads = 6        # Maximo de hilos de CPU para usar
-        self.gpu = 16           # Maximo de capas para ejecutar en GPU
+        self.gpu = 12           # Maximo de capas para ejecutar en GPU
         self.temp = 0.7         # Controla la aleatoriedad, 0 = determinista - 1 = creativo
         self.top_p = 0.9        # Selecciona suma de grupo mas pequeño 0.9 palabras al 90% descartando opciones raras
         self.top_k = 40         # Maxima cantidad de palabras seleccionadas, 40 solo selecciona 40
@@ -96,7 +96,7 @@ class Hada():
         self.llama_command = ''
         args = [
             r'.\llama.cpp\build\bin\Release\llama-server.exe ',
-            fr'--model "hada\models\HadaAI-{self.model}.gguf" ',
+            fr'--model "hada\models\HadaAI\HadaAI-{self.model}.gguf" ',
             '--alias "Hoshiku/HadaAI" ',
             f'--host {self.host} ',
             f'--port {self.port} ',
