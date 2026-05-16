@@ -29,3 +29,5 @@ rmvpe.pt
 
 hada.index
 hada.pth
+
+logs/*.log

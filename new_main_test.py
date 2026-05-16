@@ -1,11 +1,13 @@
-from hada.new_hada_init import HADA
+from hada.hada_init import HADA
 from hada.stt_init import STT
 from hada.tts_init import speak
 from hada.mem_init import Mem
+from hada.monitor_init import Monitor
 from time import sleep
 from RealtimeSTT import AudioToTextRecorderClient
 from os import devnull
 from contextlib import redirect_stdout, redirect_stderr
+from openai import OpenAI
 
 if __name__ == "__main__":
     
@@ -17,6 +19,11 @@ if __name__ == "__main__":
 
     while not hada.setup:
         sleep(1)
+
+    hada.client = OpenAI(
+        base_url="http://localhost:8000/v1",
+        api_key="no-key"
+    )
 
     stt = STT()
 
@@ -31,6 +38,9 @@ if __name__ == "__main__":
 
     speak("Testeo")
 
+    monitor = Monitor()
+    monitor.run()
+
     print("iniciando cliente stt")
 
     if stt.recorder is None:
@@ -42,21 +52,18 @@ if __name__ == "__main__":
                     data_url="ws://127.0.0.1:8012",
                     language="es",
                 )
-    print("Recording ...")
-    text = stt.play()
-    print(text)
 
     mem = Mem()
 
-    response = hada.ask(text, mem)
-
-    speak(response)
-
-    sleep(15)
-
     try:
         while True:
-            pass
+            print()
+            print("Recording ...")
+            text = stt.play()
+            print(text)
+            response = hada.ask(text, mem, monitor)
+            speak(response)
+            sleep(10)
     except KeyboardInterrupt:
         stt.stop()
         hada.stop()
