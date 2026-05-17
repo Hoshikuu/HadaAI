@@ -63,6 +63,8 @@ class HadaVoicePipeline:
         # FIX 2: cola de audio ya procesado como numpy arrays concatenados
         self._play_q   = queue.Queue()
 
+        self._text_buf = ""
+
         threading.Thread(target=self._rvc_worker,      daemon=True).start()
         threading.Thread(target=self._playback_worker, daemon=True).start()
 
@@ -173,18 +175,30 @@ class HadaVoicePipeline:
                     stream.write(out.astype(np.float32).reshape(-1, 1))
 
     # ── API pública ─────────────────────────────────────────────────
-    def speak(self, text: str):
-        self.tts.feed(text)
-        self.tts.play_async(
-            muted=True,
-            on_audio_chunk=self._on_chunk,
-            on_sentence_synthesized=self._on_sentence,
-            fast_sentence_fragment=True,
-            buffer_threshold_seconds=0.1,  # FIX 4: era 0, dar algo de margen
-        )
+    def speak(self, text: str, flush_force):
+        self._text_buf += text
+
+        flush = False
+        if any(x in self._text_buf for x in ".!?\n"):
+            flush = True
+        elif len(self._text_buf) >= 80:
+            flush = True
+
+        if flush or flush_force:
+            self.tts.feed(self._text_buf)
+            self._text_buf = ""
+
+            if not self.tts.is_playing():
+                self.tts.play_async(
+                    muted=True,
+                    on_audio_chunk=self._on_chunk,
+                    on_sentence_synthesized=self._on_sentence,
+                    fast_sentence_fragment=True,
+                    buffer_threshold_seconds=0.1
+                )
 
 # ──────────────────────────────────────────────────────────────────────
 pipeline = HadaVoicePipeline()
 
-def speak(text: str):
-    pipeline.speak(text)
+def speak(text: str, flush: bool = False):
+    pipeline.speak(text, flush)

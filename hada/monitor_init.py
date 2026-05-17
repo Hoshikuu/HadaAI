@@ -5,7 +5,7 @@ from multiprocessing import shared_memory
 
 class Monitor:
     def __init__(self):
-        self.shm = shared_memory.SharedMemory(create=True, size=16)
+        self.shm = shared_memory.SharedMemory(create=True, size=28)
     
     def run(self):
         proc(
@@ -13,8 +13,8 @@ class Monitor:
             shell=True
         )
 
-    def pack(self, items: list):
-        pack_into("Id", self.shm.buf, 0, items[0], items[1])
+    def pack(self, count: int, type: str, offset: int, items: list):
+        pack_into(type, self.shm.buf, offset, items[0], items[1])
 
     def close(self):
         self.shm.close()

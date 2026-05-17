@@ -15,12 +15,14 @@ class Mem():
     |    -> ReadFile()\n
     |    -> CheckFile()\n
     """
-    def __init__(self):
+    def __init__(self, id):
         """Defines the mem_file where is the memory file for today
         """
         # Guarda las conversaciones enteras por dia
-        self.mem_file = f"hada/mem/{datetime.date.today()}.hada" # Fichero de memoria para cada dia
+        self.id = id
+        self.mem_file = f"hada/mem/{self.id}.hada" # Fichero de memoria para cada dia
         self.content = ""   # Contenido del fichero
+        
 
     def CheckFile(self):
         """Check if the memory file exists, if not creates it
@@ -45,13 +47,13 @@ class Mem():
             _in (str): User phrase
             _out (str): Hada phrase
         """
-        self.mem_file = f"hada/mem/{datetime.date.today()}.hada"
+        self.mem_file = f"hada/mem/{self.id}.hada"
         self.ReadFile()
 
         # Escribe el contenido en el archivo
         with open(self.mem_file, "w+", encoding="utf-8") as f:
-            self.content += f"_user_:{_in}\n"
-            self.content += f"_hada_:{_out}\n"
+            self.content += f"_user_:{_in.strip()}\n"
+            self.content += f"_hada_:{_out.strip()}\n"
             f.write(self.content)
 
     def ReadMem(self):
@@ -60,7 +62,7 @@ class Mem():
         Returns:
             list: Return a list of processed chunks of the memory ready to iterates
         """
-        self.mem_file = f"hada/mem/{datetime.date.today()}.hada"
+        self.mem_file = f"hada/mem/{self.id}.hada"
         self.ReadFile()
 
         mem = []    # La lista de memoria que se devuelve ya esta preparada para poder iterarse y ponerse dentro de Hada

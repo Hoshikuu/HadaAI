@@ -8,6 +8,7 @@ from RealtimeSTT import AudioToTextRecorderClient
 from os import devnull
 from contextlib import redirect_stdout, redirect_stderr
 from openai import OpenAI
+from uuid import uuid4
 
 if __name__ == "__main__":
     
@@ -36,7 +37,7 @@ if __name__ == "__main__":
 
     print("cargando tts")
 
-    speak("Testeo")
+    speak("Testeo", True)
 
     monitor = Monitor()
     monitor.run()
@@ -53,16 +54,22 @@ if __name__ == "__main__":
                     language="es",
                 )
 
-    mem = Mem()
+    _id = str(uuid4())
+    mem = Mem(_id)
 
     try:
         while True:
             print()
             print("Recording ...")
-            text = stt.play()
-            print(text)
-            response = hada.ask(text, mem, monitor)
-            speak(response)
+            _in = stt.play()
+            print(_in)
+            response = hada.ask(_in, mem, monitor)
+            _out = ""
+            for text in response:
+                speak(text)
+                _out += text
+            speak("", True)
+            mem.Register(_in, _out)
             sleep(10)
     except KeyboardInterrupt:
         stt.stop()

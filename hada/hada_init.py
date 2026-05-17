@@ -88,8 +88,12 @@ class HADA:
 
         messages = [
             {"role": "system", "content": system_prompt()},
-            {"role": "user", "content": prompt}
         ]
+
+        memories = mem.ReadMem()
+        for memory in memories:
+            messages.append(memory)
+        messages.append({"role": "user", "content": prompt})
 
         stream = self.client.chat.completions.create(
             model="Hoshiku/HadaAI",
@@ -105,7 +109,7 @@ class HADA:
                 tokens += 1
                 tb = time.perf_counter()
                 tps = tokens / (tb - ta)
-                monitor.pack([tokens, round(tps, 2)])
+                monitor.pack(2, "Id", 12, [tokens, round(tps, 2)])
                 text = chunk.choices[0].delta.content or ""
                 print(text, end="", flush=True)
                 yield text
