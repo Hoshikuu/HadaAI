@@ -11,6 +11,8 @@ __pycache__
 # --- Voices files ---
 *.onnx
 *.onnx.json
+HadaVoiceSample.wav
+speaker.pt
 
 # --- Tasks files ---
 tasks.json
@@ -18,3 +20,14 @@ tasks.json
 # --- Software ---
 llama.cpp/
 piper/
+
+# --- DEV TMP ---
+dev.*.tmp
+
+hubert_base.pt
+rmvpe.pt
+
+hada.index
+hada.pth
+
+logs/*.log

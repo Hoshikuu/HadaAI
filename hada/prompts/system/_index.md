@@ -2,17 +2,21 @@
 
 ```
 ├── 📝 _index.md
-├── 📄 hadaV1.txt
-├── 📄 hadaV2.txt
-├── 📄 hadaV3.txt
+├── 📁 deprecated
+│   ├── 📄 hadaV1.txt
+│   ├── 📄 hadaV2.txt
+│   └── 📄 hadaV3.txt
 ├── 📄 hadaV4.txt
 ├── 📄 hadaV5.txt
 ├── 📄 hadaV6.1.txt
 ├── 📄 hadaV6.2.txt
-└── 📄 hadaV6.3.txt
+├── 📄 hadaV6.3.txt
+└── 📄 hadaV7.txt
 ```
 
 All system prompt for Hada
+
+Some files are in the deprecated folder, cause they are useless
 -
 
 V1 - First system prompt ever created
@@ -62,4 +66,4 @@ Return a shorter version of the prompt while keeping its structure, relevant ins
 - Keep the content in markdown inside a code block.
 ```
 
-V7 -
+V7 - Untested version
